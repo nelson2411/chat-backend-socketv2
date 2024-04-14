@@ -1,25 +1,37 @@
 const { response } = require("express")
 const bcrypt = require("bcryptjs")
 const User = require("../models/users")
+const { generateJWT } = require("../helpers/jwt")
 
 const createUser = async (req, res) => {
   try {
     const { email, password } = req.body
     // check if the email already exists
-    const emailExists = User.findOne({
+    const emailExists = await User.findOne({
       email,
     })
+    if (emailExists) {
+      return res.status(400).json({
+        ok: false,
+        msg: "Email already exists",
+      })
+    }
 
-    // encrypt password
-
-    // store user in the database
     const user = new User(req.body)
 
+    // encrypt password
+    const salt = bcrypt.genSaltSync() // default 10 rounds
+    user.password = bcrypt.hashSync(password, salt) // encrypt password using bcrypt
+
+    // store user in the database
+    await user.save()
+
+    // generate JWT
+    const token = await generateJWT(user.id)
+
     res.json({
-      ok: true,
-      msg: "create user",
-      email,
-      password,
+      user,
+      token,
     })
   } catch (error) {
     console.log(error)
