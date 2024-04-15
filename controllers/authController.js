@@ -45,20 +45,64 @@ const createUser = async (req, res) => {
 // login
 
 const login = async (req, res) => {
-  const body = req.body
-  res.json({
-    ok: true,
-    msg: "login",
-    body,
-  })
+  const { email, password } = req.body
+
+  try {
+    // check if the email exists
+    const userDB = await User.findOne({ email })
+    if (!userDB) {
+      return res.status(404).json({
+        ok: false,
+        msg: "Email not found",
+      })
+    }
+
+    // validate password
+    const validPassword = bcrypt.compareSync(password, userDB.password)
+    if (!validPassword) {
+      return res.status(400).json({
+        ok: false,
+        msg: "Invalid password",
+      })
+    }
+
+    // generate JWT
+    const token = await generateJWT(userDB.id)
+
+    // send sanitized user data
+    const sanitizedUser = { id: userDB.id, email: userDB.email }
+
+    res.json({
+      ok: true,
+      user: sanitizedUser,
+      token,
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      ok: false,
+      msg: "Please contact the administrator 💀",
+    })
+  }
 }
 
 // renew token
 
 const renewToken = async (req, res) => {
+  const uid = req.uid
+
+  // generate a new JWT
+  const token = await generateJWT(uid)
+
+  // get sanitized user data
+  const user = await User.findById(uid)
+  const sanitizedUser = { id: user.id, email: user.email }
+
   res.json({
     ok: true,
     msg: "renew",
+    token,
+    user: sanitizedUser,
   })
 }
 
