@@ -30,6 +30,7 @@ const createUser = async (req, res) => {
     const token = await generateJWT(user.id)
 
     res.json({
+      ok: true,
       user,
       token,
     })
@@ -70,7 +71,11 @@ const login = async (req, res) => {
     const token = await generateJWT(userDB.id)
 
     // send sanitized user data
-    const sanitizedUser = { id: userDB.id, email: userDB.email }
+    const sanitizedUser = {
+      id: userDB.id,
+      email: userDB.email,
+      name: userDB.name,
+    }
 
     res.json({
       ok: true,
@@ -96,7 +101,7 @@ const renewToken = async (req, res) => {
 
   // get sanitized user data
   const user = await User.findById(uid)
-  const sanitizedUser = { id: user.id, email: user.email }
+  const sanitizedUser = { id: user.id, email: user.email, name: user.name }
 
   res.json({
     ok: true,
