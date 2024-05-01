@@ -1,5 +1,9 @@
 const { verifyJWT } = require("../helpers/jwt")
-const { userConnected, userDisconnected } = require("../controllers/sockets")
+const {
+  userConnected,
+  userDisconnected,
+  getAllUsers,
+} = require("../controllers/sockets")
 
 class Sockets {
   constructor(io) {
@@ -26,6 +30,7 @@ class Sockets {
       console.info(`${user.name} connected`)
 
       // Emit all users connected
+      this.io.emit("list-users", await getAllUsers())
 
       // Socket join, uid
       // Listen when the client sends a message

@@ -14,7 +14,14 @@ const userDisconnected = async (uid) => {
   return user
 }
 
+// get all users
+const getAllUsers = async () => {
+  const users = await User.find().sort("-online")
+  return users
+}
+
 module.exports = {
   userConnected,
   userDisconnected,
+  getAllUsers,
 }
