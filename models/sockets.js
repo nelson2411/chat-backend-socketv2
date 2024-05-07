@@ -36,9 +36,9 @@ class Sockets {
       // Listen when the client sends a message
       // personal message. this means that the message is only for the user who sent it
       // handling disconnection
-      socket.on("disconnect", () => {
-        console.info(`${user.name} disconnected`)
-        userDisconnected(uid)
+      socket.on("disconnect", async () => {
+        await userDisconnected(uid)
+        this.io.emit("list-users", await getAllUsers())
       })
       // flag the user as offline
       // Emit all users connected
