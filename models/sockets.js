@@ -3,6 +3,7 @@ const {
   userConnected,
   userDisconnected,
   getAllUsers,
+  recordMessage,
 } = require("../controllers/sockets")
 
 class Sockets {
@@ -27,6 +28,9 @@ class Sockets {
 
       // Check which user is active (uid)
       const user = await userConnected(uid)
+      // join the user to a specific room
+      socket.join(uid) // global, socket.id, uid
+
       console.info(`${user.name} connected`)
 
       // Emit all users connected
@@ -34,6 +38,13 @@ class Sockets {
 
       // Socket join, uid
       // Listen when the client sends a message
+      socket.on("private-message", async (payload) => {
+        // record the message in the database
+        const message = await recordMessage(payload)
+        this.io.to(payload.to).emit("private-message", message)
+        this.io.to(payload.from).emit("private-message", message)
+      })
+
       // personal message. this means that the message is only for the user who sent it
       // handling disconnection
       socket.on("disconnect", async () => {
