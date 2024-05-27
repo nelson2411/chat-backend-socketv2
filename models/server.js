@@ -12,7 +12,7 @@ const Sockets = require("./sockets")
 class Server {
   constructor() {
     this.app = express()
-    this.port = process.env.PORT
+    this.port = process.env.PORT || 80
 
     // connect to DB
     dbConnection()
@@ -22,7 +22,10 @@ class Server {
 
     // Configuraciones de sockets
     this.io = socketio(this.server, {
-      /* configuraciones */
+      cors: {
+        origin: "https://chat-backend-socket-react-9f7f791f4bad.herokuapp.com/",
+        methods: ["GET", "POST"],
+      },
     })
   }
 
